@@ -64,25 +64,24 @@ void scan_dir(char *dir, int depth, int out) {
             if(strcmp(".",entry->d_name) == 0 || strcmp("..",entry->d_name) == 0)
                 continue;
             writefile(entry->d_name, out, depth, true, statbuf.st_size);
-            //printf("%*s%s/\n",depth,"",entry->d_name);
 
             scan_dir(entry->d_name,depth + 1, out);
         } 
         else {                                  // если dir - файл
             writefile(entry->d_name, out, depth, false, statbuf.st_size);
-            //printf("%*s%s\n",depth,"",entry->d_name);
         }
     }
     chdir("..");
     closedir(dp);
 }
-int writefile(char* filename, int out, int depth, bool isDir, long size) {
+void writefile(char* filename, int out, int depth, bool isDir, long size) {
     printf("\n_____________________________________\n");
     printf("Writing a file into archive..\n");
     int nread, nwrite;
     int in = open(filename, O_RDONLY);
     if(in == -1){
         printf("Error opening file!\n");
+        return;
     }
     char type = 'f';  // file or directory
     if(isDir) {
