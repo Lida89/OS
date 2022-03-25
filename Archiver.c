@@ -10,7 +10,7 @@
 #include <stdbool.h>
 #include <malloc.h>
 
-int writefile(char* filename, int out, int depth, bool isDir, long size);
+void writefile(char* filename, int out, int depth, bool isDir, long size);
 void scan_dir(char *dir, int depth, int out);
 void unzip(char *infile, char *dir_name);
 void failwrite(int n);
@@ -98,7 +98,7 @@ void writefile(char* filename, int out, int depth, bool isDir, long size) {
     int namesize = strlen(filename);
     nwrite = write(out, &namesize, sizeof(namesize));  // name length
     failwrite(nwrite);
-    nwrite = write(out, filename, namesize);           // name
+    nwrite = write(out, filename, namesize + 1);           // name
     failwrite(nwrite);
     printf("Size of name = %d; filename = %s\n", namesize, filename);
     nwrite = write(out, &size, sizeof(size));          // size
@@ -135,7 +135,6 @@ void unzip(char *infile, char *dir_name) {
     chdir(topdir);
 
     while((nread = read(in, &type, sizeof(char))) > 0) {
-        char *name;
         int depth, namelength, len = strlen(dir_name);
         long size;
         nread = read(in, &depth, sizeof(int));
@@ -151,9 +150,9 @@ void unzip(char *infile, char *dir_name) {
             printf("Failed to read name lengh!\n");
             return;
         }
-        name = (char*)malloc(namelength);
+        char* name = (char*)malloc(namelength + 1);
 
-        n = read(in, name, namelength);
+        n = read(in, name, namelength + 1);
         if (n == -1) {
             printf("Failed to read name!\n");
             return;
