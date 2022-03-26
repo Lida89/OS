@@ -144,6 +144,10 @@ void unzip(char *infile, char *dir_name) {
         }
         printf("\n_____________________________________\n");
         printf("Type = %c; depth = %d\n", type, depth);
+        while(location > depth) {
+            chdir("..");
+            location--;
+        }
 
         nread = read(in, &namelength, sizeof(int));
         if (nread == -1) {
@@ -165,12 +169,8 @@ void unzip(char *infile, char *dir_name) {
         }
         printf("Size of file = %ld", size);
         printf("\n_____________________________________\n");
-    
+
         if (type == 'd') {
-            while(location > depth) {
-                chdir("..");
-                location--;
-            }
             n = mkdir(name, S_IRWXU | S_IRWXO);
             if (n == -1) {
                 //printf("%s\n", path);
@@ -181,17 +181,12 @@ void unzip(char *infile, char *dir_name) {
             location++;
         }
         else {
-            while(location > depth) {
-                chdir("..");
-                location--;
-            }
             int out = open(name, O_CREAT | O_WRONLY, S_IRWXU | S_IRWXO);
             if (out == -1) {
                 printf("Failed to open output file!\n");
                 return;
             }
-            char *buf;
-            buf = (char*)malloc(size);
+            char *buf = (char*)malloc(size);
             nread = read(in, buf, size);
             if (nread == -1) {
                 printf("Failed to read file contents!\n");
